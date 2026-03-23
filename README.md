@@ -1,3 +1,3 @@
 # Simple Flask Auth
 
-An authenticantion API using Flask and SQL
+An authenticantion API using Flask and SQLite
