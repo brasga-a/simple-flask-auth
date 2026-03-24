@@ -4,6 +4,7 @@ from models.user import User
 from auth import login_manager
 from flask_login import login_user, current_user, logout_user, login_required
 from functools import wraps
+from bcrypt import checkpw, hashpw, gensalt
 
 app = Flask(__name__)
 
@@ -38,7 +39,9 @@ def login():
     if username and password:
         user = User.query.filter_by(username=username).first()
 
-        if user and user.password == password:
+        check_password = checkpw(str.encode(password), str.encode(user.password)) if user else False
+
+        if user and check_password:
             login_user(user)
             
             print(current_user.is_authenticated)
@@ -71,8 +74,10 @@ def register():
     
         if existing_user:
             return jsonify({"message": "Username already exists"}), 400
-    
-        new_user = User(username=username, password=password)
+
+        hashed_password = hashpw(str.encode(password), gensalt())
+
+        new_user = User(username=username, password=hashed_password, role='user')
         db.session.add(new_user)
         db.session.commit()
         return jsonify({"message": "User registered successfully"}), 201
